@@ -20,21 +20,28 @@ local dogstatsd = {
    }
 }
 
+local function is_array(x)
+  return type(x) == "table" and x[1] ~= nil
+end
+
+local function serialize_tags(tags)
+   if is_array(tags) then
+      return tags
+   end
+
+   local serialized_tags = {}
+   for key, value in pairs(tags) do
+      table.insert(serialized_tags, key .. ':' .. value)
+   end
+   return serialized_tags
+end
+
 function dogstatsd.new(config)
    local statsd = resty_statsd(config.statsd)
 
-   statsd.send_to_socket = function (self, string)
-      for key, value in pairs(self.parent.meta) do
-         if key == 'tags' then
-            local tags = self.parent.config.tags
-            for i, tag in pairs(value) do
-               table.insert(tags, tag)
-            end
-            value = table.concat(tags, ',')
-         end
-         string = string .. '|' .. self.parent.metadata[key] .. value
-      end
-      return self.udp:send(string)
+   statsd.send_to_socket = function(self, string)
+      local payload = self.parent:serialize_payload(string)
+      return self.udp:send(payload)
    end
 
    local obj = {
@@ -44,6 +51,38 @@ function dogstatsd.new(config)
    }
    statsd.parent = setmetatable(obj, {__index = dogstatsd})
    return statsd.parent
+end
+
+local function merge_tags(lhs, rhs)
+   local tag_set = {}
+
+   for _, tag in pairs(serialize_tags(lhs)) do
+      tag_set[tag] = true
+   end
+
+   for _, tag in pairs(serialize_tags(rhs)) do
+      tag_set[tag] = true
+   end
+
+   local tags = {}
+
+   for key, _ in pairs(tag_set) do
+      table.insert(tags, key)
+   end
+
+   return tags
+end
+
+function dogstatsd:serialize_payload(string)
+   for key, value in pairs(self.meta) do
+      if key == 'tags' then
+         local tags = merge_tags(self.config.tags or {}, value)
+         value = table.concat(tags, ',')
+      end
+      string = string .. '|' .. self.metadata[key] .. value
+   end
+
+   return string
 end
 
 -- ----- ----- ----- ----- -----
