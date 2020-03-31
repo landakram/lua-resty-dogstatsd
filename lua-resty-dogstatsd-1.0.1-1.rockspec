@@ -1,13 +1,13 @@
 package = "lua-resty-dogstatsd"
 version = "1.0.1-1"
 source = {
-  url = "git://github.com/mediba-system/lua-resty-dogstatsd.git",
+  url = "git://github.com/landakram/lua-resty-dogstatsd.git",
   tag = "v1.0.1"
 }
 description = {
   summary = "DogStatsd client for OpenResty/ngx_lua",
   detailed = "DogStatsd client for Lua 5.1+.",
-  homepage = "https://github.com/mediba-system/lua-resty-dogstatsd",
+  homepage = "https://github.com/landakram/lua-resty-dogstatsd",
   license = "GPLv3"
 }
 dependencies = {
