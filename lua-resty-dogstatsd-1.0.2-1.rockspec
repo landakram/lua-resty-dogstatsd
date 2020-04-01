@@ -1,8 +1,8 @@
 package = "lua-resty-dogstatsd"
-version = "1.0.1-1"
+version = "1.0.2-1"
 source = {
   url = "git://github.com/landakram/lua-resty-dogstatsd.git",
-  tag = "v1.0.1"
+  tag = "v1.0.2"
 }
 description = {
   summary = "DogStatsd client for OpenResty/ngx_lua",
