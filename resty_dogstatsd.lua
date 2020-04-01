@@ -99,6 +99,11 @@ function dogstatsd:service_check(name, status, meta)
    return self.statsd:send_to_socket('_sc|'..name..'|'..status)
 end
 
+function dogstatsd:distribution(stat, value, tags)
+   self.meta = {tags = tags or {}}
+   return self.statsd:send(stat, value, 'd')
+end
+
 -- ----- ----- ----- ----- -----
 -- Statsd Function With Tags
 -- ----- ----- ----- ----- -----
